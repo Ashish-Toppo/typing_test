@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typing Speed Test</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="text-center">Typing Speed Test</h2>
+        <p class="text-center">Type the text below as fast as you can:</p>
+        
+        <!-- Text to type -->
+        <div class="card p-3 mb-4">
+            <p id="sampleText"></p>
+        </div>
+
+        <!-- Typing Area -->
+        <div class="form-group">
+            <textarea id="typingArea" class="form-control" rows="5" placeholder="Start typing here..." disabled></textarea>
+        </div>
+
+        <!-- Timer and Buttons -->
+        <div class="text-center mb-3">
+            <span id="timer" class="font-weight-bold">30</span> seconds remaining
+            <br>
+            <button id="startButton" class="btn btn-primary mt-2">Start Test</button>
+            <button id="resetButton" class="btn btn-secondary mt-2" disabled>Reset</button>
+        </div>
+
+        <div id="result" class="text-center font-weight-bold"></div>
+    </div>
+
+    <script>
+        let startTime, timerInterval;
+        let sampleTexts = [
+            "The quick brown fox jumps over the lazy dog. This sentence includes all letters of the alphabet, making it a pangram. Pangrams are useful for testing typing speed and accuracy.",
+            "Typing speed tests are a fun way to improve your typing skills. By challenging yourself regularly, you can significantly increase your words per minute and improve accuracy.",
+            "Touch typing is a valuable skill that allows you to type without looking at the keyboard. Developing this skill can enhance productivity and reduce strain on your hands and eyes.",
+            "Learning to type faster can make a big difference in how quickly you can complete tasks. Practice regularly and focus on accuracy to see improvement over time.",
+            "Efficient typing is not only about speed but also accuracy. Slowing down initially to ensure precision will ultimately help you develop a fast and error-free typing habit."
+        ];
+        
+        // Function to select a random paragraph
+        function getRandomText() {
+            const randomIndex = Math.floor(Math.random() * sampleTexts.length);
+            return sampleTexts[randomIndex];
+        }
+
+        // Start test
+        $("#startButton").click(function() {
+            const selectedText = getRandomText();
+            $("#sampleText").text(selectedText);
+            $("#typingArea").prop("disabled", false).val("").focus();
+            $("#result").text("");
+            startTime = new Date().getTime();
+            $("#startButton").prop("disabled", true);
+            $("#resetButton").prop("disabled", false);
+
+            // Start 30-second countdown timer
+            let timeRemaining = 30;
+            $("#timer").text(timeRemaining);
+            timerInterval = setInterval(function() {
+                timeRemaining--;
+                $("#timer").text(timeRemaining);
+
+                if (timeRemaining <= 0) {
+                    endTest();
+                }
+            }, 1000);
+        });
+
+        // Check if typing matches text or timer ends
+        $("#typingArea").on("input", function() {
+            const typedText = $(this).val();
+            if (typedText === $("#sampleText").text()) {
+                endTest();
+            }
+        });
+
+        // End test function
+        function endTest() {
+            clearInterval(timerInterval);
+            $("#typingArea").prop("disabled", true);
+
+            const typedText = $("#typingArea").val();
+            const wordCount = typedText.split(" ").filter(word => word.length > 0).length;
+            const timeElapsed = (new Date().getTime() - startTime) / 1000;
+            const timeTaken = Math.min(timeElapsed, 30); // use 30 seconds if timeElapsed exceeds it
+            const wpm = Math.round((wordCount / timeTaken) * 60);
+
+            $("#result").text(`Your typing speed is ${wpm} WPM.`);
+            $("#resetButton").prop("disabled", false);
+            $("#startButton").prop("disabled", true);
+        }
+
+        // Reset the test
+        $("#resetButton").click(function() {
+            clearInterval(timerInterval);
+            $("#typingArea").prop("disabled", true).val("");
+            $("#timer").text("30");
+            $("#result").text("");
+            $("#startButton").prop("disabled", false);
+            $(this).prop("disabled", true);
+        });
+    </script>
+</body>
+</html>
